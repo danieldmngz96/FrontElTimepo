@@ -1,0 +1,29 @@
+﻿@page "/"
+@using BlazorApp.Services;
+@using FrontElTimepo.Models;
+@inject ArticleService ArticleService
+
+<h3>Articles</h3>
+
+@if (articles == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <ul>
+        @foreach (var article in articles)
+        {
+            <li>@article.Title by @article.AuthorName</li>
+        }
+    </ul>
+}
+
+@code {
+    private List<ArticleDto> articles;
+
+    protected override async Task OnInitializedAsync()
+    {
+        articles = await ArticleService.GetArticlesAsync();
+    }
+}
