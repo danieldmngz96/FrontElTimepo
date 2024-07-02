@@ -1,30 +1,77 @@
 ﻿@page "/users"
-@using BlazorApp.Services;
-@using FrontElTimepo.Models;
-@using FrontElTimepo.Services;
+@using FrontElTimepo.Models
+@using FrontElTimepo.Services
+@inject UserService userService
+@inject IJSRuntime JS
 
+<h3>Usuarios</h3>
 
-<h3>User</h3>
-
-@if (articles == null)
+@if (users == null)
 {
-        <p><em>Loading...</em></p>
+    <p><em>Cargando...</em></p>
 }
 else
 {
-        <ul>
-        @foreach (var article in articles)
-        {
-                    <li>@article.Title by @article.AuthorName</li>
-        }
-        </ul>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Usuario</th>
+                <th>Email</th>
+                <th>Roles</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in users)
+            {
+                <tr>
+                    <td>@user.Username</td>
+                    <td>@user.Email</td>
+                    <td>
+                        @if (user.Roles != null)
+                        {
+                            @foreach (var role in user.Roles)
+                            {
+                                <span>@role</span>
+                            }
+                        }
+                    </td>
+                    <td>
+                        <button class="btn btn-primary" @onclick="() => AssignRoles(user.UserId)">Asignar Roles</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 }
 
 @code {
-    private List<ArticleDto> articles;
+    private List<UsuariosDto> users;
 
     protected override async Task OnInitializedAsync()
     {
-        articles = await ArticleService.GetArticlesAsync();
+        await LoadUsers();
+    }
+
+    private async Task LoadUsers()
+    {
+        users = await userService.GetUsersAsync();
+    }
+
+    private async Task AssignRoles(int userId)
+    {
+        var roles = await userService.GetRolesAsync();
+
+        // Handle null or empty roles gracefully
+        if (roles == null || roles.Count == 0)
+        {
+            // Handle the scenario where no roles are retrieved
+            return;
+        }
+
+        var selectedRoles = await JS.InvokeAsync<List<int>>("showRoleAssignmentModal", roles);
+
+        await userService.AssignRolesAsync(userId, selectedRoles);
+        await LoadUsers(); // Refresh the user list after role assignment
     }
 }

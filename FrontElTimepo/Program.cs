@@ -1,5 +1,6 @@
 using BlazorApp.Services;
 using FrontElTimepo;
+using FrontElTimepo.Services;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using System;
@@ -16,7 +17,7 @@ namespace BlazorApp
             builder.RootComponents.Add<App>("#app");
             builder.RootComponents.Add<HeadOutlet>("head::after");
             builder.Services.AddScoped<ArticleService>();
-
+            builder.Services.AddScoped<UserService>();
 
             // Register HttpClient with the base address of your API
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("http://localhost:5071/api") });
